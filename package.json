@@ -1,0 +1,38 @@
+{
+  "name": "ltplabs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node ./server.js",
+    "start": "cross-env NODE_ENV=production node ./server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@remix-run/express": "^2.17.1",
+    "@remix-run/node": "^2.17.1",
+    "@remix-run/react": "^2.17.1",
+    "@tailwindcss/vite": "^4.1.14",
+    "cross-env": "^10.1.0",
+    "express": "^4.21.2",
+    "isbot": "^4.4.0",
+    "lucide-react": "^0.544.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.17.1",
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.14",
+    "vite": "^6.3.6",
+    "vite-tsconfig-paths": "^5.1.4"
+  }
+}
