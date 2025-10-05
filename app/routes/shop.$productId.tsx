@@ -1,11 +1,17 @@
 // app/routes/shop.$productId.tsx
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
+import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData, Link, Form } from "@remix-run/react";
+import { addToCart } from "../api/cart.server";
 
+/* server-side loader function that runs when this product page is requested
+   it fetches product details from the API based on the url parameter */
 export async function loader({ params }: LoaderFunctionArgs) {
+
+    // get productId from url
     const { productId } = params;
     if (!productId) throw new Response("Product ID missing", { status: 400 });
 
+    // fetch details from api
     const res = await fetch(`https://dummyjson.com/products/${productId}`);
     if (!res.ok) throw new Response("Product not found", { status: 404 });
 
@@ -13,12 +19,38 @@ export async function loader({ params }: LoaderFunctionArgs) {
     return json({ product });
 }
 
+/* server-side action function that handles form submissions
+    it processes de "add to cart" form and updates the cart */
+export async function action({ request, params }: ActionFunctionArgs) {
+
+    // parse data from form
+    const formData = await request.formData();
+
+    // determine what action to perform -- add-to-cart
+    const intent = formData.get("intent");
+
+    // get id from url
+    const productId = Number(params.productId);
+
+    // handles adding product to cart (default is 1)
+    if (intent === "add-to-cart") {
+        const { cookie } = await addToCart(request, productId, 1);
+        return json(
+            { success: true },
+            { headers: { "Set-Cookie": cookie } }
+        );
+        return json({ success: false });
+    }
+
+}
+
+/* displays individual product information */
 export default function ProductDetail() {
     const { product } = useLoaderData<typeof loader>();
 
     return (
         <div className="p-4">
-            {/* Simple Back Link */}
+            {/* Back Link */}
             <Link to="/shop" className="text-blue-500 hover:underline mb-4 inline-block">
                 ← Back to Products
             </Link>
@@ -32,7 +64,7 @@ export default function ProductDetail() {
                         <img
                             src={product.thumbnail}
                             alt={product.title}
-                            className="w-full h-96 object-cover border rounded"
+                            className="w-full h-full object-cover border rounded"
                         />
                     </div>
                     {/* Product Details */}
@@ -47,9 +79,15 @@ export default function ProductDetail() {
                         </div>
 
                         {/* Add to Cart Button */}
-                        <button className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
-                            Add to Cart
-                        </button>
+                        <Form method="post">
+                            <input type="hidden" name="intent" value="add-to-cart" />
+                            <button
+                                type="submit"
+                                className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 mb-6"
+                            >
+                                Add to Cart
+                            </button>
+                        </Form>
                         {/* Description Section */}
                         <div className="mt-8">
                             <h2 className="text-lg font-bold mb-2">Description</h2>
@@ -58,7 +96,7 @@ export default function ProductDetail() {
                     </div>
                 </div>
 
-                {/* Simple Product Info */}
+                {/* Product Info */}
                 <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
                     <div>
                         <span className="font-medium">Category:</span>
